@@ -1,0 +1,94 @@
+[project]
+name = "webapp-st-boilerplate"
+version = "0.1.0"
+description = "Boilerplate for building streamlit webapp"
+authors = [
+    {name = "Salvatore Albore", email = "salvatore.albore@gmail.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = [
+    "alembic>=1.15.2",
+    "cryptography>=45.0.1",
+    "openpyxl>=3.1.5",
+    "pandas>=2.2.3",
+    "passlib[bcrypt]>=1.7.4",
+    "pydantic>=2.11.4",
+    "pydantic-settings>=2.9.1",
+    "sqlalchemy>=2.0.40",
+    "streamlit>=1.45.0",
+]
+
+[dependency-groups]
+dev = [
+    "defusedxml>=0.7.1",
+    "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
+    "ruff>=0.11.9",
+]
+
+[project.scripts]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["src/webapp_st_boilerplate"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""
+
+[tool.pytest.ini_options]
+minversion = "7.1.2"
+junit_family = "xunit2"
+testpaths = ["tests/test_webapp_st_boilerplate/"]
+filterwarnings = "ignore::DeprecationWarning"
+
+[tool.coverage.paths]
+source = ["src/webapp_st_boilerplate"]
+
+[tool.coverage.run]
+branch = true
+source = ["src/webapp_st_boilerplate"]
+
+[tool.coverage.report]
+ignore_errors = true
+fail_under = 30
+show_missing = true
+
+[tool.ruff]
+line-length = 99
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    "PL", # pylint
+    "S", # flake8-bandit
+    "I", # isort
+    "UP", # pyupgrade
+    "SIM", # flake8-simplify
+]
+
+ignore = [
+    "PLR0913", # too-many-arguments
+    "PLR2004", # magic value used in comparison
+]
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
+lines-between-types = 1
+known-first-party = ["webapp_st_boilerplate"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/test**.py" = [
+    "S101", # use of assert
+    "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
+    "PLR2004", # magic value in comparison
+    "E501", # line too long
+    "PLR0913", # too many arguments
+]

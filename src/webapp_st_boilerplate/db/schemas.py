@@ -1,0 +1,69 @@
+from datetime import datetime
+
+from pydantic import BaseModel, field_validator
+
+
+class EntityBase(BaseModel):
+    entityName: str
+
+
+class EntityCreate(EntityBase):
+    pass
+
+
+class EventBase(BaseModel):
+    userId: int
+    eventType: str
+    eventDate: datetime
+
+
+class EventCreate(EventBase):
+    pass
+
+
+class EventPandas(EventBase):
+    id: int
+    entityId: int
+    eventDate: str
+
+    @field_validator("id", "entityId", mode="before")
+    def cast_int(cls, v):
+        return int(v)
+
+    @field_validator("eventDate", mode="before")
+    def cast_date(cls, v):
+        return datetime.strftime(v, "%Y-%m-%d %H:%M:%S")
+
+
+class UserBase(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: str
+    disabled: bool
+    lastLogin: datetime | None = None
+    createdDate: datetime | None = None
+    updatedDate: datetime | None = None
+
+
+class UserCreate(UserBase):
+    pass
+
+
+class UserPandas(UserBase):
+    id: int
+    entityId: int
+    lastLogin: str
+    createdDate: str
+    updatedDate: str
+
+    @field_validator("id", "entityId", mode="before")
+    def cast_int(cls, v):
+        return int(v)
+
+    @field_validator("lastLogin", "createdDate", "updatedDate", mode="before")
+    def cast_date(cls, v):
+        if not None:
+            return datetime.strftime(v, "%Y-%m-%d %H:%M:%S")
+        else:
+            return None

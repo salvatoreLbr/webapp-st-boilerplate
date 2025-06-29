@@ -1,0 +1,11 @@
+{
+    "python.defaultInterpreterPath": ".venv\\bin\\python.exe",
+    "python.analysis.extraPaths": [
+        "./src/webapp_st_boilerplate"
+    ],
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}
