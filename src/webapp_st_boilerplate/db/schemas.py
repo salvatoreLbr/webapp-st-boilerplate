@@ -11,28 +11,12 @@ class EntityCreate(EntityBase):
     pass
 
 
-class EventBase(BaseModel):
-    userId: int
-    eventType: str
-    eventDate: datetime
-
-
-class EventCreate(EventBase):
-    pass
-
-
-class EventPandas(EventBase):
+class EntityPandas(EntityBase):
     id: int
-    entityId: int
-    eventDate: str
 
-    @field_validator("id", "entityId", mode="before")
+    @field_validator("id", mode="before")
     def cast_int(cls, v):
         return int(v)
-
-    @field_validator("eventDate", mode="before")
-    def cast_date(cls, v):
-        return datetime.strftime(v, "%Y-%m-%d %H:%M:%S")
 
 
 class UserBase(BaseModel):
@@ -63,7 +47,7 @@ class UserPandas(UserBase):
 
     @field_validator("lastLogin", "createdDate", "updatedDate", mode="before")
     def cast_date(cls, v):
-        if not None:
+        if v is not None:
             return datetime.strftime(v, "%Y-%m-%d %H:%M:%S")
         else:
             return None

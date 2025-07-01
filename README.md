@@ -15,11 +15,30 @@ A template for building web applications with Streamlit, designed to provide a s
 - `tests/` — Automated tests
 - `alembic/` — Database migration management
 
+## Getting Started
+To start the application, follow these steps:
+
+1. **Install the virtual environment** (the repository uses [uv](https://github.com/astral-sh/uv)):
+   ```bash
+   uv sync
+   ```
+2. **Create the secrets file**:
+   - Copy the structure from `secrets_template.toml` and create a new file named `secrets.toml` inside the `.streamlit` directory.
+   - Populate the environment variables as needed for your setup.
+3. **Activate the virtual environment** (if running on WSL):
+   ```bash
+   source .venv/bin/activate
+   ```
+4. **Start the web application**:
+   ```bash
+   make webapp
+   ```
+
 ## Code Coverage
 <!-- coverage:start -->
 ## 📊 Code Coverage
-███████████████████████░░░░░░░  78.38%<br>
-Updated at: 2025-06-29 22:17:19
+██████████████████████████░░░░  88.4%<br>
+Updated at: 2025-07-01 23:20:18
 <!-- coverage:end -->
 
 ## Author

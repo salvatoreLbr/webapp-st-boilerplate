@@ -28,14 +28,16 @@ def get_hash(phrase):
 
 def authenticate(
     users_df: pd.DataFrame, email: str, password: str
-) -> tuple[bool, bool, int, str, int]:
+) -> tuple[bool, bool, bool, int, str, int, int]:
     """Given users dataframe, email and password authenticate user.
     Function return the following info:
     - user exist
     - wrong password
+    - disabled?
     - role (as number)
     - username
     - user_id
+    - entity_id
 
     Args:
         users_df (pd.DataFrame): _description_
@@ -45,25 +47,31 @@ def authenticate(
     #: Check if there is almost an user
     if users_df.shape[0] == 0:
         #: There aren't any user in table User
-        return False, False, "", "", -9
+        return False, False, False, "", "", -9, -9
     #: Get email if exists
     idx_email = users_df.email.apply(lambda x: verify_hash(email, x))
     if idx_email.sum() == 1:
         user_exist = True
     else:
-        return False, False, "", "", -9
+        return False, False, False, "", "", -9, -9
     #: Check password
     user_password = users_df.loc[idx_email, "password"].values[0]
     if verify_hash(password, user_password):
         wrong_password = False
     else:
-        return user_exist, True, "", "", -9
-    #: Get username and retrieve page
-    name = users_df.loc[idx_email, "name"].values[0]
-    role = users_df.loc[idx_email, "role"].values[0]
-    role_number = Role._member_map_.get(role).value
-    user_id = int(users_df.loc[idx_email, "id"].values[0])
-    return user_exist, wrong_password, role_number, name, user_id
+        return user_exist, True, False, "", "", -9, -9
+    #: Check if user is disabled
+    disabled = bool(users_df.loc[idx_email, "disabled"].values[0])
+    if disabled:
+        return user_exist, wrong_password, disabled, "", "", -9, -9
+    else:
+        #: Get username and retrieve page
+        name = users_df.loc[idx_email, "name"].values[0]
+        role = users_df.loc[idx_email, "role"].values[0]
+        role_number = Role._member_map_.get(role).value
+        user_id = int(users_df.loc[idx_email, "id"].values[0])
+        entity_id = int(users_df.loc[idx_email, "entityId"].values[0])
+        return user_exist, wrong_password, disabled, role_number, name, user_id, entity_id
 
 
 def check_rules_password(psw: str) -> tuple[bool, str]:

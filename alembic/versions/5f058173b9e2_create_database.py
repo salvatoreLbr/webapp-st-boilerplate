@@ -28,13 +28,6 @@ def upgrade() -> None:
         sa.Column("entityName", sa.String(length=100)),
     )
     op.create_table(
-        "Event",
-        sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("userId", sa.Integer(), sa.ForeignKey("User.id")),
-        sa.Column("eventType", sa.String(length=20)),
-        sa.Column("eventDate", sa.DateTime()),
-    )
-    op.create_table(
         "User",
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("entityId", sa.Integer(), sa.ForeignKey("Entity.id")),
@@ -51,5 +44,4 @@ def upgrade() -> None:
 
 def downgrade():
     op.drop_table("User")
-    op.drop_table("Event")
     op.drop_table("Entity")

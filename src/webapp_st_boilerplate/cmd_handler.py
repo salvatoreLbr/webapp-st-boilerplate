@@ -5,11 +5,12 @@ import pandas as pd
 
 from sqlalchemy import inspect
 
+from webapp_st_boilerplate.auth.authorization import Role
+from webapp_st_boilerplate.config import settings
 from webapp_st_boilerplate.db import schemas
 from webapp_st_boilerplate.db.gateway import DBGateway
 from webapp_st_boilerplate.db.models import (
     Entity,
-    Event,
     User,
 )
 
@@ -24,16 +25,11 @@ class Cmd:
         # Lista delle classi del tuo modello
         MODEL_CLASSES = [
             Entity,
-            Event,
             User,
         ]
 
         # Crea un nuovo workbook di openpyxl
         workbook = openpyxl.Workbook()
-
-        # Rimuovi il foglio di default creato all'apertura
-        if "Sheet" in workbook.sheetnames:
-            del workbook["Sheet"]
 
         # Per ogni classe del modello
         for model_class in MODEL_CLASSES:
@@ -58,7 +54,15 @@ class Cmd:
 
         print(f"Il file '{output_filename}' è stato creato con successo.")
 
-    def create_user(self, user_dict: dict) -> tuple[bool, str]:
+    def create_entity(self, entity_dict: dict) -> tuple[bool, str]:
+        entity_create_obj = schemas.EntityCreate(entityName=entity_dict["entityName"])
+        try:
+            _ = self.db_gateway.create_entity(info=entity_create_obj)
+            return True, "Entity creata con successo"
+        except Exception as e:
+            return False, f"Entity non creata a causa del seguente errore: {e.args[0]}"
+
+    def create_user(self, user_dict: dict, entity_id: int | None = None) -> tuple[bool, str]:
         now_timestamp = datetime.now()
         user_create_obj = schemas.UserCreate(
             name=user_dict["name"],
@@ -71,7 +75,8 @@ class Cmd:
             updatedDate=now_timestamp,
         )
         try:
-            _ = self.db_gateway.create_user(info=user_create_obj, entity_id=self.entity_id)
+            entity_id = entity_id if entity_id is not None else self.entity_id
+            _ = self.db_gateway.create_user(info=user_create_obj, entity_id=entity_id)
             return True, "Utente creato con successo"
         except Exception as e:
             return False, f"Utente non creato a causa del seguente errore: {e.args[0]}"
@@ -87,20 +92,29 @@ class Cmd:
         user_value["disabled"] = True
         user_update_obj = schemas.UserCreate(**user_value)
         try:
-            self.db_gateway.update_user(info=user_update_obj, user_id=self.user_id)
+            self.db_gateway.update_user(info=user_update_obj, user_id=user_id)
             return True, "Utente disabilitato con successo"
         except Exception as e:
             return False, f"Utente non disabilitato a causa del seguente errore: {e.args[0]}"
 
+    def get_entity(self) -> pd.DataFrame:
+        return self.db_gateway.get_entity()
+
     def get_users(self) -> pd.DataFrame:
         return self.db_gateway.get_user()
 
-    def update_user(self, user_dict: dict[str, str]) -> tuple[bool, str]:
-        now_timestamp = datetime.now()
-        user_dict["updatedDate"] = now_timestamp
-        user_update_obj = schemas.UserCreate(**user_dict)
-        try:
-            self.db_gateway.update_user(info=user_update_obj, user_id=self.user_id)
-            return True, "Utente aggiornato con successo"
-        except Exception as e:
-            return False, f"Utente non aggiornato a causa del seguente errore: {e.args[0]}"
+    def init_database(self):
+        #: Check if User table is empty
+        user_df = self.db_gateway.get_user()
+        if user_df.empty:
+            #: Create ADMIN application
+            user_dict = {
+                "name": "Admin",
+                "email": settings.app_secrets.admin_email,
+                "password": settings.app_secrets.admin_psw,
+                "role": Role.ADMIN.name,
+                "disabled": False,
+            }
+            self.create_user(user_dict=user_dict)
+        else:
+            pass

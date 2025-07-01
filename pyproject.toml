@@ -52,6 +52,7 @@ source = ["src/webapp_st_boilerplate"]
 [tool.coverage.run]
 branch = true
 source = ["src/webapp_st_boilerplate"]
+omit = ["src/webapp_st_boilerplate/front_end/cmd.py"]
 
 [tool.coverage.report]
 ignore_errors = true

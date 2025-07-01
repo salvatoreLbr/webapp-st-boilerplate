@@ -21,4 +21,9 @@ lint:
 	uv run ruff check --fix src tests
 
 .PHONY: model-chart  ## sudo apt install graphviz
+model-chart:
 	dot -Tpng src/webapp_st_boilerplate/db/model.dot -o src/webapp_st_boilerplate/db/model.png
+
+.PHONY: webapp  ## sudo apt install graphviz
+webapp:
+	streamlit run src/webapp_st_boilerplate/app.py

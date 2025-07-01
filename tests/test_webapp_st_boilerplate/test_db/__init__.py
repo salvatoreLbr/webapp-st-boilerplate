@@ -1,4 +1,7 @@
+import os
+
 from datetime import datetime
+from pathlib import Path
 
 from webapp_st_boilerplate.auth.authorization import Role
 from webapp_st_boilerplate.db import models
@@ -13,6 +16,12 @@ def init_test_database() -> tuple[int, int]:
     Returns:
         int: userId created in database
     """
+    #: Delete previous tablesAdd commentMore actions
+    cur_path = Path(os.getcwd())
+    db_path = cur_path.joinpath("webapp_st_boilerplate.db")
+    if db_path.exists():
+        delete_database_tables()
+
     #: Init test database
     db_gateway = DBGateway()
 
@@ -39,7 +48,6 @@ def delete_database_tables():
     db_session = get_db()
     for model in [
         models.Entity,
-        models.Event,
         models.User,
     ]:
         db_session.query(model).delete(synchronize_session="evaluate")

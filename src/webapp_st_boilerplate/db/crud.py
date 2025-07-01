@@ -15,7 +15,7 @@ from webapp_st_boilerplate.db.main import Base
 def create_record(
     db_session: Session,
     model: Base,  # type: ignore
-    info_list: list[models.Entity | models.Event | models.User],
+    info_list: list[models.Entity | models.User],
 ) -> tuple[bool, str, list[int]]:
     try:
         db_session.add_all(info_list)
@@ -55,10 +55,17 @@ def get_record(
     fields_name = []
     for key, value in model.__dict__.items():
         try:
-            if (value.is_attribute) & (key[0] != "_") & ("link" not in key):
+            if (
+                (hasattr(value, "is_attribute"))
+                and (value.is_attribute)
+                and (key[0] != "_")
+                and ("link" not in key)
+            ):
                 fields_name.append(key)
         except Exception:
-            pass
+            raise AttributeError(f"""
+                Attribute '{key}' is not a valid column of the model '{model.__name__}'
+            """)
     #: Get row values
     db_list = []
     for db_row in db_obj:
@@ -68,7 +75,10 @@ def get_record(
                 value = getattr(db_row, key)
                 row_dict[key] = value
             except Exception:
-                pass
+                print(f"""
+                    Warning: Attribute '{key}' not found in the model '{model.__name__}'.
+                    Skipping this field.
+                """)
         db_list.append(row_dict)
     #: Transform obj db in pd.DataFrame
     if schema is not None:
@@ -88,7 +98,7 @@ def get_record(
             idx_filter.append(f"(df.{key}{value}) &")
         idx_filter = "".join(idx_filter)
         idx_filter = idx_filter[:-2]
-        df = df.loc[eval(idx_filter)].reset_index(drop=True)
+        df = df.loc[eval(idx_filter)].reset_index(drop=True)  # noqa: S307
     return df
 
 
@@ -164,7 +174,7 @@ def delete_record(
             idx_filter.append(f"(model.{key}{value}) &")
         idx_filter = "".join(idx_filter)
         idx_filter = idx_filter[:-2]
-        db_session.query(model).filter(eval(idx_filter)).delete(synchronize_session="evaluate")
+        db_session.query(model).filter(eval(idx_filter)).delete(synchronize_session="evaluate")  # noqa: S307
     else:
         db_session.query(model).delete(synchronize_session="evaluate")
     #: Update DB

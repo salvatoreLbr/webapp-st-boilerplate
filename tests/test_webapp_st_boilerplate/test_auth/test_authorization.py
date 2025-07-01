@@ -4,7 +4,7 @@ from webapp_st_boilerplate.auth.authorization import AuthManager
 def test_get_required_level():
     auth_manager_obj = AuthManager()
     required_level = auth_manager_obj.get_required_level(method_name="disable_user")
-    assert required_level.value == 3, "!!! Error in get_required_level"
+    assert required_level == 3, "!!! Error in get_required_level"
 
 
 def test_can_access():

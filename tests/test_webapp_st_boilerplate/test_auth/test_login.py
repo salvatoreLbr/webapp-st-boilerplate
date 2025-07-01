@@ -37,6 +37,22 @@ def test_change_password():
     )
     assert not password_changed, "!!! Error in login !!!"
 
+    #: Test error in change_password
+    (password_changed, response_str) = change_password(
+        email="test.user@example.com",
+        old_password="NuovaPassword123!",  # noqa: S106
+        new_password="newpswfdare",  # noqa: S106
+    )
+    assert not password_changed, "!!! Error in login !!!"
+
+    #: Test error in change_password
+    (password_changed, response_str) = change_password(
+        email="wrongemail@example.com",
+        old_password="NuovaPassword123!",  # noqa: S106
+        new_password="newpswfdare",  # noqa: S106
+    )
+    assert not password_changed, "!!! Error in login !!!"
+
     #: Delete test database
     delete_database_tables()
 
@@ -45,7 +61,7 @@ def test_login():
     #: Init test database
     _, _ = init_test_database()
 
-    (user_exist, wrong_password, _, _, _) = login(
+    (user_exist, wrong_password, _, _, _, _, _) = login(
         email="test.user@example.com",
         password="Password123!",  # noqa: S106
     )

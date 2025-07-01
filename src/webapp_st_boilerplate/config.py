@@ -6,6 +6,12 @@ from pydantic_settings import BaseSettings
 
 db_secrets = st.secrets.get("db", {})
 login_secrets = st.secrets.get("login", {})
+app_secrets = st.secrets.get("app_secrets", {})
+
+
+class AppSecrets(BaseModel):
+    admin_email: str = app_secrets.get("admin_email", "")
+    admin_psw: str = app_secrets.get("admin_psw", "")
 
 
 class DBSecrets(BaseModel):
@@ -25,6 +31,7 @@ class LoginSecrets(BaseModel):
 class Settings(BaseSettings):
     db_secrets: DBSecrets = DBSecrets()
     login_secrets: LoginSecrets = LoginSecrets()
+    app_secrets: AppSecrets = AppSecrets()
 
 
 settings = Settings()

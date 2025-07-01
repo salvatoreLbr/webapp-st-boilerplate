@@ -15,15 +15,16 @@ class AuthManager:
     def __init__(self):
         # Mappa i nomi dei metodi della classe Cmd al livello di autorizzazione minimo richiesto.
         self._method_permissions: dict[str, int] = {
-            "backup_db": Role.USER_ADMIN,
-            "create_user": Role.ADMIN,
-            "disable_user": Role.ADMIN,
-            "get_user": Role.USER,
-            "update_user": Role.USER,
+            "backup_db": Role.USER_ADMIN.value,
+            "create_entity": Role.ADMIN.value,
+            "create_user": Role.ADMIN.value,
+            "disable_user": Role.ADMIN.value,
+            "get_entity": Role.ADMIN.value,
+            "get_users": Role.USER.value,
             # Aggiungi qui tutti gli altri metodi della tua classe Cmd
         }
 
-    def get_required_level(self, method_name: str) -> Role:
+    def get_required_level(self, method_name: str) -> int:
         """
         Restituisce il livello di autorizzazione minimo richiesto per un dato metodo.
 
@@ -49,4 +50,4 @@ class AuthManager:
             bool: True se l'utente ha il permesso, False altrimenti.
         """
         required_level = self.get_required_level(method_name)
-        return user_current_level >= required_level.value
+        return user_current_level >= required_level

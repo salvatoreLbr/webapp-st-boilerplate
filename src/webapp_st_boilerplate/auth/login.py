@@ -12,10 +12,15 @@ def change_password(email: str, old_password: str, new_password: str) -> tuple[b
     #: Get users dataframe
     users_df = db_gateway.get_user()
     #: Authenticate
-    (_, wrong_password, _, _, user_id) = authenticate(
+    (correct_email, wrong_password, _, _, _, user_id, _) = authenticate(
         users_df=users_df, email=email, password=old_password
     )
-    if wrong_password:
+    if not correct_email:
+        return (
+            False,
+            "L'email inserita non corrisponde a quella associata all'account",
+        )
+    elif wrong_password:
         return (
             False,
             "L'attuale password non è corretta. Non è stato possibile aggiornare la password",
@@ -37,22 +42,27 @@ def change_password(email: str, old_password: str, new_password: str) -> tuple[b
             return True, "Password aggiornata"
 
 
-def login(email: str, password: str) -> tuple[bool, bool, int, str, int]:
+def login(email: str, password: str) -> tuple[bool, bool, bool, int, str, int, int]:
     #: Set db_gateway
     db_gateway = DBGateway()
 
     #: Get users dataframe
     users_df = db_gateway.get_user()
     #: Authenticate
-    (user_exist, wrong_password, role_number, name, user_id) = authenticate(
+    (user_exist, wrong_password, disabled, role_number, name, user_id, entity_id) = authenticate(
         users_df=users_df, email=email, password=password
     )
     #: At this point login is ok
-    #: Update last login
-    user_dict = users_df.loc[users_df["id"] == user_id].to_dict(orient="index")
-    user_value = [user_value for user_value in user_dict.values()][0]
-    user_value["createdDate"] = datetime.strptime(user_value["createdDate"], "%Y-%m-%d %H:%M:%S")
-    user_obj = UserCreate(**user_value)
-    db_gateway.update_user(info=user_obj, user_id=user_id)
+    if user_id != -9:
+        #: Update last login
+        user_dict = users_df.loc[users_df["id"] == user_id].to_dict(orient="index")
+        user_value = [user_value for user_value in user_dict.values()][0]
+        user_value["createdDate"] = datetime.strptime(
+            user_value["createdDate"], "%Y-%m-%d %H:%M:%S"
+        )
+        user_obj = UserCreate(**user_value)
+        db_gateway.update_user(info=user_obj, user_id=user_id)
+    else:
+        pass
 
-    return user_exist, wrong_password, role_number, name, user_id
+    return user_exist, wrong_password, disabled, role_number, name, user_id, entity_id

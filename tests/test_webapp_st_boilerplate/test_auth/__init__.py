@@ -39,7 +39,6 @@ def delete_database_tables():
     db_session = get_db()
     for model in [
         models.Entity,
-        models.Event,
         models.User,
     ]:
         db_session.query(model).delete(synchronize_session="evaluate")

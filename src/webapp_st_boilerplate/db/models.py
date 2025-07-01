@@ -37,20 +37,6 @@ class Entity(Base):
             self._entityName = None
 
     user_link = relationship("User", back_populates="entity_link")
-    event_link = relationship("Event", back_populates="entity_link")
-
-
-class Event(Base):
-    __tablename__ = "Event"
-
-    id = Column(Integer, primary_key=True)
-    userId = Column(Integer, ForeignKey("User.id"))
-    eventType = Column(String(20))
-    eventDate = Column(DateTime)
-    entityId = Column(Integer, ForeignKey("Entity.id"))
-
-    user_link = relationship("User", back_populates="event_link")
-    entity_link = relationship("Entity", back_populates="event_link")
 
 
 class User(Base):
@@ -100,4 +86,3 @@ class User(Base):
             self._role = None
 
     entity_link = relationship("Entity", back_populates="user_link")
-    event_link = relationship("Event", back_populates="user_link")

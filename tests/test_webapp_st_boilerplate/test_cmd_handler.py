@@ -33,6 +33,24 @@ def test_backup_db():
     delete_database_tables()
 
 
+def test_create_entity():
+    #: Init test database
+    userId, entityId = init_test_database()
+
+    #: Set Cmd
+    cmd_obj = Cmd(user_id=userId, entity_id=entityId)
+
+    #: Test create_item method
+    entity_dict = {
+        "entityName": "Test",
+    }
+    created_flag, _ = cmd_obj.create_entity(entity_dict=entity_dict)
+    assert created_flag, "!!! Error in create_entity !!!"
+
+    #: Delete test database
+    delete_database_tables()
+
+
 def test_create_user():
     #: Init test database
     userId, entityId = init_test_database()
@@ -51,6 +69,17 @@ def test_create_user():
     created_flag, response_str = cmd_obj.create_user(user_dict=user_dict)
     assert created_flag is False, "!!! Error in create_supplier !!!"
     assert "Email già registrata" in response_str, "!!! Error in create_supplier !!!"
+
+    user_dict = {
+        "name": "Test User",
+        "email": "test.user1@example.com",
+        "password": "Password123!",  # noqa: S106
+        "role": Role.ADMIN.name,
+        "disabled": False,
+    }
+    created_flag, response_str = cmd_obj.create_user(user_dict=user_dict)
+    assert created_flag is False, "!!! Error in create_supplier !!!"
+    assert "Nome già utilizzato" in response_str, "!!! Error in create_supplier !!!"
 
     user_dict = {
         "name": "other Test User",
@@ -107,6 +136,21 @@ def test_get_users():
     assert isinstance(users_df, pd.DataFrame), "!!! Error in get_user: user not found !!!"
     idx_check = users_df["name"] == "Test User"
     assert idx_check.sum() > 0, "!!! Error in get_user: wrong user data !!!"
+
+    #: Delete test database
+    delete_database_tables()
+
+
+def test_init_database():
+    #: Set Cmd
+    cmd_obj = Cmd(user_id=-9, entity_id=-9)
+
+    #: Exec init database
+    cmd_obj.init_database()
+
+    #: Check admin presence
+    users_df = cmd_obj.get_users()
+    assert "Admin" in list(users_df["name"].unique()), "!!! Error in init_database"
 
     #: Delete test database
     delete_database_tables()
